@@ -1,0 +1,14 @@
+{
+  "name": "remote-pay-cloud-connector-configuration-react",
+  "version": "0.0.1",
+  "description": "A React visual component to configure the connection to a Clover device.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Clover"
+  ],
+  "author": "Mike Hampton <mike@clover.com> (http://www.clover.com)",
+  "license": "ISC"
+}
