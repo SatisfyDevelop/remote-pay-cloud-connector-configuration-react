@@ -1,6 +1,6 @@
 {
   "name": "remote-pay-cloud-connector-configuration-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A React visual component to configure the connection to a Clover device.",
   "keywords": [
     "clover",
@@ -13,7 +13,16 @@
     "url": "https://github.com/clover/remote-pay-cloud-connector-configuration-react/issues"
   },
   "browserify": {
-    "transform": [["babelify", { "presets": ["react"] }]]
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "react"
+          ]
+        }
+      ]
+    ]
   },
   "license": "ISC",
   "author": {
