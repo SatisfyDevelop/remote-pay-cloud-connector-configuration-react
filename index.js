@@ -1,5 +1,5 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
+// var ReactDOM = require('react-dom');
 var Modal = require('react-modal');
 // jQuery adds a lot to the download size
 var $ = require('jQuery');
@@ -164,7 +164,7 @@ var DeviceSelect = React.createClass({
      * React to the user changing the selection in the component
      * @param data: event
      */
-    handleChange(data) {
+    handleChange: function(data) {
         if(data.currentTarget && data.currentTarget["selectedOptions"] &&
           data.currentTarget["selectedOptions"].length > 0) {
             var selectedOption = data.currentTarget["selectedOptions"][0];
@@ -245,7 +245,7 @@ var CloverServerSelect = React.createClass({
         this.setState({cloverServer: server});
         this.props.onServerSelected({cloverServer: server});
     },
-    handleChange(data) {
+    handleChange: function(data) {
         if(data.currentTarget && data.currentTarget["selectedOptions"] &&
           data.currentTarget["selectedOptions"].length > 0) {
             var selectedOption = data.currentTarget["selectedOptions"][0];
@@ -449,8 +449,10 @@ var ConfigureApp = React.createClass({
                 dataType: 'json',
                 cache: false,
                 success: function (info) {
-                    log.debug("load config success response: ", info);
-                    this.setState(info);
+                    if(info) {
+                        log.debug("load config success response: ", info);
+                        this.setState(info);
+                    }
                 }.bind(this),
                 error: function (xhr, status, err) {
                     log.debug("load config error response: ", status, err);
