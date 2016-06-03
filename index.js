@@ -88,6 +88,8 @@ var DeviceSelect = React.createClass({
             var currentWindowUrl = urlUtility.parse(window.location.href, true);
             // Clear the hash (though it really does not matter mush)
             currentWindowUrl.hash = '';
+            // query (object; see querystring) will only be used if search is absent.
+            currentWindowUrl.search = '';
             // Set the flag that indicates we are in the config gui
             currentWindowUrl.query['workingOnConfig']=true;
             // If we have a deviceSerialId selected, pass it through
@@ -335,6 +337,8 @@ var ConfigureApp = React.createClass({
 
             var currentWindowUrl = urlUtility.parse(window.location.href, true);
             currentWindowUrl.hash = '';
+            // query (object; see querystring) will only be used if search is absent.
+            currentWindowUrl.search = '';
             currentWindowUrl.query['workingOnConfig']=true;
             currentWindowUrl.query['deviceSerialId']=this.state.deviceSerialId;
 
