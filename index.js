@@ -410,6 +410,7 @@ var ConfigureApp = React.createClass({
             onDisconnected: function() {
                 reactObjectReference.setState({infoMessage : "Device disconnected."});
                 log.debug("onDisconnected");
+                this.cloverConnector.removeCloverConnectorListener(this);
                 reactObjectReference.saveConfiguration();
             }
         });
