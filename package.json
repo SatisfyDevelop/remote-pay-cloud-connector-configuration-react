@@ -35,10 +35,12 @@
     "type": "git",
     "url": "https://github.com/clover/remote-pay-cloud-connector-configuration-react"
   },
-  "dependencies": {
+  "peerDependencies": {
     "react": "*",
     "react-dom": "*",
-    "react-modal": "*",
+    "react-modal": "*"
+  },
+  "dependencies": {
     "jQuery": "*",
     "xmlhttprequest": "*",
     "location": "*",

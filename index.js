@@ -398,6 +398,9 @@ var ConfigureApp = React.createClass({
                     reactObjectReference.setState({infoMessage : "Displaying connection to " +
                         reactObjectReference.props.friendlyId + " on device."});
                     setTimeout(function() {
+                        if(this.props.onDeviceVerified) {
+                            this.props.onDeviceVerified(this.cloverConnector);
+                        }
                         reactObjectReference.setState({infoMessage : "Closing device connection."});
                         this.cloverConnector.dispose();
                     }.bind(this), 6000);
