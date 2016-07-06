@@ -399,7 +399,10 @@ var ConfigureApp = React.createClass({
                         reactObjectReference.props.friendlyId + " on device."});
                     setTimeout(function() {
                         if(reactObjectReference.props.onDeviceVerified) {
+                            this.cloverConnector.showWelcomeScreen();
                             reactObjectReference.props.onDeviceVerified(this.cloverConnector);
+                            reactObjectReference.setState({infoMessage: "Select 'Close' to continue."});
+
                             this.cloverConnector.removeCloverConnectorListener(this);
                         } else {
                             reactObjectReference.setState({infoMessage: "Closing device connection."});
