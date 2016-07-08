@@ -275,6 +275,21 @@ var CloverServerSelect = React.createClass({
 
 
 var ConfigureApp = React.createClass({
+
+    getDefaultProps: function () {
+        return {
+            openButtonText: "Configure Clover Connector",
+            connToDeviceEstablished: "Connection to device established. Getting merchant configuration information...",
+            merchConfigRetrvd: "Merchant configuration information retrieved.",
+            devConnToFrndlyId: "Connected to ",
+            posConnToFrndlyId_1: "Displaying connection to ",
+            posConnToFrndlyId_2: " on device.",
+            posDevVerifiedCB: "Device is configured.  Select 'Close' to return to the application.",
+            posCloseDev: "Closing device connection.",
+            posDevDisconnected: "Device disconnected."
+        }
+    },
+
     getInitialState: function() {
         var currentWindowUrl = urlUtility.parse(window.location.href, true);
         var isWorkingOnConfig = Boolean( currentWindowUrl.query['workingOnConfig'] );
@@ -297,6 +312,9 @@ var ConfigureApp = React.createClass({
     },
 
     openModal: function() {
+        if(this.props.onOpen) {
+            this.props.onOpen(this);
+        }
         this.setState({infoMessage: ""}, function() {
             this.setState({modalIsOpen: true});
         });
@@ -374,8 +392,7 @@ var ConfigureApp = React.createClass({
             },
 
             onConnected: function() {
-                reactObjectReference.setState({infoMessage : "Connection to device established.  " +
-                "Getting merchant configuration information..."});
+                reactObjectReference.setState({infoMessage : reactObjectReference.props.connToDeviceEstablished});
                 log.debug("onConnected");
             },
             onDeviceError: function(deviceErrorEvent) {
@@ -389,23 +406,24 @@ var ConfigureApp = React.createClass({
              * @return void
              */
             onReady: function (merchantInfo) {
-                reactObjectReference.setState({infoMessage : "Merchant configuration information retrieved."});
+                reactObjectReference.setState({infoMessage : reactObjectReference.props.merchConfigRetrvd});
                 //Give the user a few seconds to see the device connect.
                 log.debug("onReady", merchantInfo);
 
                 setTimeout(function() {
-                    this.cloverConnector.showMessage("Connected to " + reactObjectReference.props.friendlyId);
-                    reactObjectReference.setState({infoMessage : "Displaying connection to " +
-                        reactObjectReference.props.friendlyId + " on device."});
+                    this.cloverConnector.showMessage( reactObjectReference.props.devConnToFrndlyId + reactObjectReference.props.friendlyId);
+                    reactObjectReference.setState({infoMessage : reactObjectReference.props.posConnToFrndlyId_1 +
+                        reactObjectReference.props.friendlyId + reactObjectReference.props.posConnToFrndlyId_2});
                     setTimeout(function() {
                         if(reactObjectReference.props.onDeviceVerified) {
                             this.cloverConnector.showWelcomeScreen();
                             reactObjectReference.props.onDeviceVerified(this.cloverConnector);
-                            reactObjectReference.setState({infoMessage: "Select 'Close' to continue."});
+                            reactObjectReference.setState({infoMessage:
+                                reactObjectReference.props.posDevVerifiedCB});
 
                             this.cloverConnector.removeCloverConnectorListener(this);
                         } else {
-                            reactObjectReference.setState({infoMessage: "Closing device connection."});
+                            reactObjectReference.setState({infoMessage: reactObjectReference.props.posCloseDev});
                             this.cloverConnector.dispose();
                         }
                     }.bind(this), 6000);
@@ -413,7 +431,7 @@ var ConfigureApp = React.createClass({
 
             },
             onDisconnected: function() {
-                reactObjectReference.setState({infoMessage : "Device disconnected."});
+                reactObjectReference.setState({infoMessage : reactObjectReference.props.posDevDisconnected});
                 log.debug("onDisconnected");
                 this.cloverConnector.removeCloverConnectorListener(this);
                 reactObjectReference.saveConfiguration();
@@ -477,7 +495,7 @@ var ConfigureApp = React.createClass({
     render: function() {
         return (
           <div>
-              <button onClick={this.openModal}>Configure Clover Connector</button>
+              <button onClick={this.openModal}>{this.props.openButtonText}</button>
               <Modal
                 isOpen={this.state.modalIsOpen}
                 onAfterOpen={this.afterOpenModal}
