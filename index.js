@@ -289,7 +289,8 @@ var ConfigureApp = React.createClass({
             posDevDisconnected: "Device disconnected.",
             verifyCommButton: "Verify Device Communication",
             saveConfigButton: "Save configuration",
-            closeButton: "Close"
+            closeButton: "Close",
+            title: "Clover Device Configuration"
         }
     },
 
@@ -505,7 +506,7 @@ var ConfigureApp = React.createClass({
                 onRequestClose={this.closeModal}
                 style={customStyles} >
 
-                  <h2 ref="subtitle">Clover Connector Configuration</h2>
+                  <h2 ref="subtitle">{this.props.title}</h2>
                   <div ref="statusMessage">{this.state.infoMessage}</div>
                   <form>
                       <CloverServerSelect
