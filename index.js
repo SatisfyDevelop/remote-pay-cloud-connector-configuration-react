@@ -286,7 +286,11 @@ var ConfigureApp = React.createClass({
             posConnToFrndlyId_2: " on device.",
             posDevVerifiedCB: "Device is configured.  Select 'Close' to return to the application.",
             posCloseDev: "Closing device connection.",
-            posDevDisconnected: "Device disconnected."
+            posDevDisconnected: "Device disconnected.",
+            verifyCommButton: "Verify Device Communication",
+            saveConfigButton: "Save configuration",
+            closeButton: "Close",
+            title: "Clover Device Configuration"
         }
     },
 
@@ -502,7 +506,7 @@ var ConfigureApp = React.createClass({
                 onRequestClose={this.closeModal}
                 style={customStyles} >
 
-                  <h2 ref="subtitle">Clover Connector Configuration</h2>
+                  <h2 ref="subtitle">{this.props.title}</h2>
                   <div ref="statusMessage">{this.state.infoMessage}</div>
                   <form>
                       <CloverServerSelect
@@ -520,9 +524,9 @@ var ConfigureApp = React.createClass({
                       <div ref="buttonContainer">
                           <button type="button" onClick={this.verifyCommunication}
                                   disabled={!this.state.deviceSerialId}
-                          >Verify Device Communication</button>
-                          <button type="button" ref="saveConfigurationButton" onClick={this.saveConfiguration}>Save configuration</button>
-                          <button type="button" ref="closeButton" onClick={this.closeModal}>Close</button>
+                          >{this.props.verifyCommButton}</button>
+                          <button type="button" ref="saveConfigurationButton" onClick={this.saveConfiguration}>{this.props.saveConfigButton}</button>
+                          <button type="button" ref="closeButton" onClick={this.closeModal}>{this.props.closeButton}</button>
                       </div>
                   </form>
               </Modal>
