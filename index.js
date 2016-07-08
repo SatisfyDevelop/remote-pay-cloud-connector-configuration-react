@@ -286,7 +286,10 @@ var ConfigureApp = React.createClass({
             posConnToFrndlyId_2: " on device.",
             posDevVerifiedCB: "Device is configured.  Select 'Close' to return to the application.",
             posCloseDev: "Closing device connection.",
-            posDevDisconnected: "Device disconnected."
+            posDevDisconnected: "Device disconnected.",
+            verifyCommButton: "Verify Device Communication",
+            saveConfigButton: "Save configuration",
+            closeButton: "Close"
         }
     },
 
@@ -520,9 +523,9 @@ var ConfigureApp = React.createClass({
                       <div ref="buttonContainer">
                           <button type="button" onClick={this.verifyCommunication}
                                   disabled={!this.state.deviceSerialId}
-                          >Verify Device Communication</button>
-                          <button type="button" ref="saveConfigurationButton" onClick={this.saveConfiguration}>Save configuration</button>
-                          <button type="button" ref="closeButton" onClick={this.closeModal}>Close</button>
+                          >{this.props.verifyCommButton}</button>
+                          <button type="button" ref="saveConfigurationButton" onClick={this.saveConfiguration}>{this.props.saveConfigButton}</button>
+                          <button type="button" ref="closeButton" onClick={this.closeModal}>{this.props.closeButton}</button>
                       </div>
                   </form>
               </Modal>
