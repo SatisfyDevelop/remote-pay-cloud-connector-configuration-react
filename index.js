@@ -404,7 +404,8 @@ var ConfigureApp = React.createClass({
                         if(reactObjectReference.props.onDeviceVerified) {
                             this.cloverConnector.showWelcomeScreen();
                             reactObjectReference.props.onDeviceVerified(this.cloverConnector);
-                            reactObjectReference.setState({infoMessage: "Select 'Close' to continue."});
+                            reactObjectReference.setState({infoMessage:
+                              "Device is configured.  Select 'Close' to return to the application."});
 
                             this.cloverConnector.removeCloverConnectorListener(this);
                         } else {
