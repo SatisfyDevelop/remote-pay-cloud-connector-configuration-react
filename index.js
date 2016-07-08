@@ -392,7 +392,7 @@ var ConfigureApp = React.createClass({
             },
 
             onConnected: function() {
-                reactObjectReference.setState({infoMessage : this.props.connToDeviceEstablished});
+                reactObjectReference.setState({infoMessage : reactObjectReference..connToDeviceEstablished});
                 log.debug("onConnected");
             },
             onDeviceError: function(deviceErrorEvent) {
@@ -406,24 +406,24 @@ var ConfigureApp = React.createClass({
              * @return void
              */
             onReady: function (merchantInfo) {
-                reactObjectReference.setState({infoMessage : this.props.merchConfigRetrvd});
+                reactObjectReference.setState({infoMessage : reactObjectReference..merchConfigRetrvd});
                 //Give the user a few seconds to see the device connect.
                 log.debug("onReady", merchantInfo);
 
                 setTimeout(function() {
-                    this.cloverConnector.showMessage( this.props.devConnToFrndlyId + reactObjectReference.props.friendlyId);
-                    reactObjectReference.setState({infoMessage : this.props.posConnToFrndlyId_1 +
-                        reactObjectReference.props.friendlyId + this.props.posConnToFrndlyId_2});
+                    this.cloverConnector.showMessage( reactObjectReference..devConnToFrndlyId + reactObjectReference.props.friendlyId);
+                    reactObjectReference.setState({infoMessage : reactObjectReference..posConnToFrndlyId_1 +
+                        reactObjectReference.props.friendlyId + reactObjectReference..posConnToFrndlyId_2});
                     setTimeout(function() {
                         if(reactObjectReference.props.onDeviceVerified) {
                             this.cloverConnector.showWelcomeScreen();
                             reactObjectReference.props.onDeviceVerified(this.cloverConnector);
                             reactObjectReference.setState({infoMessage:
-                                this.props.posDevVerifiedCB});
+                                reactObjectReference..posDevVerifiedCB});
 
                             this.cloverConnector.removeCloverConnectorListener(this);
                         } else {
-                            reactObjectReference.setState({infoMessage: this.props.posCloseDev});
+                            reactObjectReference.setState({infoMessage: reactObjectReference..posCloseDev});
                             this.cloverConnector.dispose();
                         }
                     }.bind(this), 6000);
@@ -431,7 +431,7 @@ var ConfigureApp = React.createClass({
 
             },
             onDisconnected: function() {
-                reactObjectReference.setState({infoMessage : this.props.posDevDisconnected});
+                reactObjectReference.setState({infoMessage : reactObjectReference..posDevDisconnected});
                 log.debug("onDisconnected");
                 this.cloverConnector.removeCloverConnectorListener(this);
                 reactObjectReference.saveConfiguration();
