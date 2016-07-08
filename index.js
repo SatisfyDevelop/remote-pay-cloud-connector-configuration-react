@@ -282,16 +282,13 @@ var ConfigureApp = React.createClass({
             connToDeviceEstablished: "Connection to device established. Getting merchant configuration information...",
             merchConfigRetrvd: "Merchant configuration information retrieved.",
             devConnToFrndlyId: "Connected to ",
-              posConnToFrndlyId_1: "Displaying connection to ",
-              posConnToFrndlyId_2: " on device.",
+            posConnToFrndlyId_1: "Displaying connection to ",
+            posConnToFrndlyId_2: " on device.",
             posDevVerifiedCB: "Device is configured.  Select 'Close' to return to the application.",
             posCloseDev: "Closing device connection.",
-            posDevDisconnected: "Device disconnected.",
-            uiTitle: ""
+            posDevDisconnected: "Device disconnected."
         }
     },
-
-
 
     getInitialState: function() {
         var currentWindowUrl = urlUtility.parse(window.location.href, true);
