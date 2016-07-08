@@ -297,6 +297,9 @@ var ConfigureApp = React.createClass({
     },
 
     openModal: function() {
+        if(this.props.onOpen) {
+            this.props.onOpen(this);
+        }
         this.setState({infoMessage: ""}, function() {
             this.setState({modalIsOpen: true});
         });
