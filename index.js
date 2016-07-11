@@ -18,6 +18,15 @@ const customStyles = {
         transform             : 'translate(-50%, -50%)'
     }
 };
+
+const message_normal_style = {
+};
+
+const message_error_style = {
+    fontStyle: 'italic',
+    color: 'red'
+};
+
 /**
  * Style object used with the server selection and the device selection
  * @type {{width: string, height: string, overflow: string, border: string}}
@@ -279,6 +288,8 @@ var ConfigureApp = React.createClass({
     getDefaultProps: function () {
         return {
             openButtonText: "Configure Clover Connector",
+            deviceConnectButtonText: "Connect to Device",
+            deviceDisconnectButtonText: "Disconnect from Device",
             connToDeviceEstablished: "Connection to device established. Getting merchant configuration information...",
             merchConfigRetrvd: "Merchant configuration information retrieved.",
             devConnToFrndlyId: "Connected to ",
@@ -304,11 +315,15 @@ var ConfigureApp = React.createClass({
         }
         return {
             infoMessage: "",
+            infoMessage_type: message_normal_style,
             modalIsOpen: isWorkingOnConfig,
             deviceSerialId: deviceSerialId,
             friendlyId : this.props.friendlyId,
             oauthToken : token,
-            clientId : this.props.clientId // Wil need to be entered if not the Clover app.
+            clientId : this.props.clientId, // Wil need to be entered if not the Clover app.
+            cloverConnector: null,
+            cloverConnector_isConnected: false,
+            deviceVerified: false
         };
     },
 
@@ -319,7 +334,7 @@ var ConfigureApp = React.createClass({
         if(this.props.onOpen) {
             this.props.onOpen(this);
         }
-        this.setState({infoMessage: ""}, function() {
+        this.setState({deviceVerified: false, infoMessage: ""}, function() {
             this.setState({modalIsOpen: true});
         });
     },
@@ -337,6 +352,13 @@ var ConfigureApp = React.createClass({
         this.refs.buttonContainer.style.width = '100%';
     },
     closeModal: function() {
+        if(this.state.cloverConnector != null && this.state.cloverConnector_isConnected) {
+            try {
+                this.state.cloverConnector.showWelcomeScreen();
+            } catch(e) {
+                // eat it
+            }
+        }
         this.setState({modalIsOpen: false});
     },
 
@@ -375,7 +397,23 @@ var ConfigureApp = React.createClass({
             log.debug(this.state);
         });
     },
+
+    setNormalMessage: function(message, callback) {
+        this.setState({infoMessage_type: message_normal_style, infoMessage : message}, callback);
+    },
+
+    setErrorMessage: function(message, callback) {
+        this.setState({infoMessage_type: message_error_style, infoMessage : message}, callback);
+    },
+
     verifyCommunication: function() {
+        var connector = this.getCloverConnector();
+        this.setState({cloverConnector: connector});
+        this.contactDevice(connector);
+    },
+
+
+    getCloverConnector: function() {
         var connector = new clover.CloverConnectorFactory().createICloverConnector(
           {
               "clientId": this.state.clientId,
@@ -385,6 +423,27 @@ var ConfigureApp = React.createClass({
               "friendlyId": this.state.friendlyId
           }
         );
+        var reactObjectReference = this;
+        // Tap into the connect events only here.
+        var ConnectOnlyCloverConnectorListener = Class.create( clover.remotepay.ICloverConnectorListener, {
+            onConnected: function() {
+                reactObjectReference.setState({cloverConnector_isConnected: true});
+            },
+            onDisconnected: function () {
+                reactObjectReference.setState({cloverConnector_isConnected: false});
+            }
+        });
+        var connectorListener = new ConnectOnlyCloverConnectorListener(connector);
+        connector.addCloverConnectorListener(connectorListener);
+
+        return connector;
+    },
+
+    /**
+     *
+     * @param {ICloverConnector} connector
+     */
+    contactDevice: function(connector) {
         var reactObjectReference = this;
         var ValidateCommunicationCloverConnectorListener = Class.create( clover.remotepay.ICloverConnectorListener, {
             /**
@@ -396,12 +455,16 @@ var ConfigureApp = React.createClass({
             },
 
             onConnected: function() {
-                reactObjectReference.setState({infoMessage : reactObjectReference.props.connToDeviceEstablished});
+                reactObjectReference.setNormalMessage(reactObjectReference.props.connToDeviceEstablished);
                 log.debug("onConnected");
             },
             onDeviceError: function(deviceErrorEvent) {
-                if(deviceErrorEvent.getCode() === DeviceErrorEventCode.SendNotificationFailure) {
-                    reactObjectReference.setState({infoMessage : deviceErrorEvent.getMessage()});
+                if(deviceErrorEvent.getCode() === clover.remotepay.DeviceErrorEventCode.SendNotificationFailure) {
+                    reactObjectReference.setErrorMessage(deviceErrorEvent.getMessage());
+                } else if(deviceErrorEvent.getCode() === clover.remotepay.DeviceErrorEventCode.AccessDenied) {
+                    reactObjectReference.setErrorMessage(
+                      "Cannot use device at this time.  Device is already connected to " +
+                      deviceErrorEvent.getMessage() + ".");
                 }
                 log.debug("onDeviceError", deviceErrorEvent);
             },
@@ -410,32 +473,38 @@ var ConfigureApp = React.createClass({
              * @return void
              */
             onReady: function (merchantInfo) {
-                reactObjectReference.setState({infoMessage : reactObjectReference.props.merchConfigRetrvd});
+                reactObjectReference.setNormalMessage(reactObjectReference.props.merchConfigRetrvd);
                 //Give the user a few seconds to see the device connect.
                 log.debug("onReady", merchantInfo);
+                if(reactObjectReference.props.onDeviceVerified) {
+                    reactObjectReference.props.onDeviceVerified(this.cloverConnector);
+                }
 
                 setTimeout(function() {
-                    this.cloverConnector.showMessage( reactObjectReference.props.devConnToFrndlyId + reactObjectReference.props.friendlyId);
-                    reactObjectReference.setState({infoMessage : reactObjectReference.props.posConnToFrndlyId_1 +
-                        reactObjectReference.props.friendlyId + reactObjectReference.props.posConnToFrndlyId_2});
-                    setTimeout(function() {
-                        if(reactObjectReference.props.onDeviceVerified) {
-                            this.cloverConnector.showWelcomeScreen();
-                            reactObjectReference.props.onDeviceVerified(this.cloverConnector);
-                            reactObjectReference.setState({infoMessage:
-                                reactObjectReference.props.posDevVerifiedCB});
-
-                            this.cloverConnector.removeCloverConnectorListener(this);
-                        } else {
-                            reactObjectReference.setState({infoMessage: reactObjectReference.props.posCloseDev});
-                            this.cloverConnector.dispose();
-                        }
-                    }.bind(this), 6000);
+                    if(reactObjectReference.state.modalIsOpen) {
+                        this.cloverConnector.showMessage(reactObjectReference.props.devConnToFrndlyId + reactObjectReference.props.friendlyId);
+                        reactObjectReference.setNormalMessage(reactObjectReference.props.posConnToFrndlyId_1 +
+                          reactObjectReference.props.friendlyId + reactObjectReference.props.posConnToFrndlyId_2);
+                        setTimeout(function () {
+                            if (reactObjectReference.props.onDeviceVerified) {
+                                if(reactObjectReference.state.modalIsOpen) {
+                                    this.cloverConnector.showWelcomeScreen();
+                                    reactObjectReference.setNormalMessage(
+                                      reactObjectReference.props.posDevVerifiedCB);
+                                }
+                                reactObjectReference.setState({deviceVerified: true});
+                                this.cloverConnector.removeCloverConnectorListener(this);
+                            } else {
+                                reactObjectReference.setNormalMessage(reactObjectReference.props.posCloseDev);
+                                this.cloverConnector.dispose();
+                            }
+                        }.bind(this), 6000);
+                    }
                 }.bind(this), 1000);
 
             },
             onDisconnected: function() {
-                reactObjectReference.setState({infoMessage : reactObjectReference.props.posDevDisconnected});
+                reactObjectReference.setNormalMessage(reactObjectReference.props.posDevDisconnected);
                 log.debug("onDisconnected");
                 this.cloverConnector.removeCloverConnectorListener(this);
                 reactObjectReference.saveConfiguration();
@@ -443,6 +512,7 @@ var ConfigureApp = React.createClass({
         });
         var connectorListener = new ValidateCommunicationCloverConnectorListener(connector);
         connector.addCloverConnectorListener(connectorListener);
+
         connector.initializeConnection();
     },
     getServerListURL: function() {
@@ -496,10 +566,32 @@ var ConfigureApp = React.createClass({
         }
     },
 
+    isConnected: function() {
+        return (this.state.cloverConnector !== null && this.state.cloverConnector_isConnected);
+    },
+
+    getConnectButtonText: function() {
+        return this.isConnected() ?
+          this.props.deviceDisconnectButtonText :
+          this.props.deviceConnectButtonText;
+    },
+
+    onConnectButtonClicked: function() {
+        if(this.isConnected()) {
+            this.state.cloverConnector.dispose();
+            this.setState({cloverConnector: null});
+        } else {
+            this.openModal();
+            this.verifyCommunication();
+        }
+    },
+
     render: function() {
         return (
           <div>
               <button onClick={this.openModal}>{this.props.openButtonText}</button>
+              <button disabled={!this.state.deviceSerialId}
+                      onClick={this.onConnectButtonClicked}>{this.getConnectButtonText()}</button>
               <Modal
                 isOpen={this.state.modalIsOpen}
                 onAfterOpen={this.afterOpenModal}
@@ -507,7 +599,7 @@ var ConfigureApp = React.createClass({
                 style={customStyles} >
 
                   <h2 ref="subtitle">{this.props.title}</h2>
-                  <div ref="statusMessage">{this.state.infoMessage}</div>
+                  <div ref="statusMessage" style={this.state.infoMessage_type}>{this.state.infoMessage}</div>
                   <form>
                       <CloverServerSelect
                         cloverServer={this.state.domain}
@@ -525,8 +617,8 @@ var ConfigureApp = React.createClass({
                           <button type="button" onClick={this.verifyCommunication}
                                   disabled={!this.state.deviceSerialId}
                           >{this.props.verifyCommButton}</button>
-                          <button type="button" ref="saveConfigurationButton" onClick={this.saveConfiguration}>{this.props.saveConfigButton}</button>
-                          <button type="button" ref="closeButton" onClick={this.closeModal}>{this.props.closeButton}</button>
+                          <button disabled={!this.state.deviceVerified}
+                                  type="button" ref="closeButton" onClick={this.closeModal}>{this.props.closeButton}</button>
                       </div>
                   </form>
               </Modal>
