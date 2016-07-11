@@ -347,7 +347,6 @@ var ConfigureApp = React.createClass({
         this.refs.statusMessage.style.wordWrap = 'break-word';
         this.refs.statusMessage.style.fontFamily = 'sans-serif';
         this.refs.closeButton.style.float = 'right';
-        this.refs.saveConfigurationButton.style.float = 'right';
 
         this.refs.buttonContainer.style.width = '100%';
     },
