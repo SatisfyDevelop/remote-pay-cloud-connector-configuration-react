@@ -321,6 +321,7 @@ var ConfigureApp = React.createClass({
             friendlyId : this.props.friendlyId,
             oauthToken : token,
             clientId : this.props.clientId, // Wil need to be entered if not the Clover app.
+            applicationId: this.props.applicationId,
             cloverConnector: null,
             cloverConnector_isConnected: false,
             deviceVerified: false
@@ -416,6 +417,7 @@ var ConfigureApp = React.createClass({
         var connector = new clover.CloverConnectorFactory().createICloverConnector(
           {
               "clientId": this.state.clientId,
+              "applicationId": this.state.applicationId,
               "deviceSerialId": this.state.deviceSerialId,
               "domain": this.state.domain,
               "merchantId": this.state.merchantId,
@@ -528,6 +530,7 @@ var ConfigureApp = React.createClass({
                 dataType: 'json',
                 data: JSON.stringify({
                     "clientId": this.state.clientId,
+                    "applicationId": this.state.applicationId,
                     "deviceSerialId": this.state.deviceSerialId,
                     "domain": this.state.domain,
                     "merchantId": this.state.merchantId,
@@ -611,6 +614,7 @@ var ConfigureApp = React.createClass({
                         oauthToken={this.state.oauthToken}
                         merchantId={this.state.merchantId}
                         clientId={this.state.clientId}
+                        applicationId: {this.state.applicationId}
                       /><br/>
                       <div ref="buttonContainer">
                           <button type="button" onClick={this.verifyCommunication}
