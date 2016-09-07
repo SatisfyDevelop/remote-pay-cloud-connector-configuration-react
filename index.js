@@ -426,14 +426,19 @@ var ConfigureApp = React.createClass({
         );
         var reactObjectReference = this;
         // Tap into the connect events only here.
-        var ConnectOnlyCloverConnectorListener = Class.create( clover.remotepay.ICloverConnectorListener, {
-            onConnected: function() {
-                reactObjectReference.setState({cloverConnector_isConnected: true});
-            },
-            onDisconnected: function () {
-                reactObjectReference.setState({cloverConnector_isConnected: false});
-            }
-        });
+        var ConnectOnlyCloverConnectorListener = function () {
+            clover.remotepay.ICloverConnectorListener.call(this);
+        };
+
+        ConnectOnlyCloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
+        ConnectOnlyCloverConnectorListener.prototype.constructor = ConnectOnlyCloverConnectorListener;
+
+        ConnectOnlyCloverConnectorListener.prototype.onConnected = function () {
+            reactObjectReference.setState({cloverConnector_isConnected: true});
+        };
+        ConnectOnlyCloverConnectorListener.prototype.onDisconnected = function () {
+            reactObjectReference.setState({cloverConnector_isConnected: false});
+        };
         var connectorListener = new ConnectOnlyCloverConnectorListener(connector);
         connector.addCloverConnectorListener(connectorListener);
 
@@ -444,73 +449,74 @@ var ConfigureApp = React.createClass({
      *
      * @param {ICloverConnector} connector
      */
-    contactDevice: function(connector) {
+    contactDevice: function (connector) {
         var reactObjectReference = this;
-        var ValidateCommunicationCloverConnectorListener = Class.create( clover.remotepay.ICloverConnectorListener, {
-            /**
-             *
-             * @param {ICloverConnector} cloverConnector
-             */
-            initialize: function (cloverConnector) {
-                this.cloverConnector = cloverConnector;
-            },
+        /**
+         * @param {ICloverConnector} cloverConnector
+         * @constructor
+         */
+        var ValidateCommunicationCloverConnectorListener = function (cloverConnector) {
+            clover.remotepay.ICloverConnectorListener.call(this);
+            this.cloverConnector = cloverConnector;
+        };
 
-            onConnected: function() {
-                reactObjectReference.setNormalMessage(reactObjectReference.props.connToDeviceEstablished);
-                log.debug("onConnected");
-            },
-            onDeviceError: function(deviceErrorEvent) {
-                if(deviceErrorEvent.getCode() === clover.remotepay.DeviceErrorEventCode.SendNotificationFailure) {
-                    reactObjectReference.setErrorMessage(deviceErrorEvent.getMessage());
-                } else if(deviceErrorEvent.getCode() === clover.remotepay.DeviceErrorEventCode.AccessDenied) {
-                    reactObjectReference.setErrorMessage(
-                      "Cannot use device at this time.  Device is already connected to " +
-                      deviceErrorEvent.getMessage() + ".");
-                }
-                log.debug("onDeviceError", deviceErrorEvent);
-            },
-            /**
-             * @param {MerchantInfo} merchantInfo
-             * @return void
-             */
-            onReady: function (merchantInfo) {
-                reactObjectReference.setNormalMessage(reactObjectReference.props.merchConfigRetrvd);
-                //Give the user a few seconds to see the device connect.
-                log.debug("onReady", merchantInfo);
-                if(reactObjectReference.props.onDeviceVerified) {
-                    reactObjectReference.props.onDeviceVerified(this.cloverConnector);
-                }
+        ValidateCommunicationCloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
+        ValidateCommunicationCloverConnectorListener.prototype.constructor = ValidateCommunicationCloverConnectorListener;
 
-                setTimeout(function() {
-                    if(reactObjectReference.state.modalIsOpen) {
-                        this.cloverConnector.showMessage(reactObjectReference.props.devConnToFrndlyId + reactObjectReference.props.friendlyId);
-                        reactObjectReference.setNormalMessage(reactObjectReference.props.posConnToFrndlyId_1 +
-                          reactObjectReference.props.friendlyId + reactObjectReference.props.posConnToFrndlyId_2);
-                        setTimeout(function () {
-                            if (reactObjectReference.props.onDeviceVerified) {
-                                if(reactObjectReference.state.modalIsOpen) {
-                                    this.cloverConnector.showWelcomeScreen();
-                                    reactObjectReference.setNormalMessage(
-                                      reactObjectReference.props.posDevVerifiedCB);
-                                }
-                                reactObjectReference.setState({deviceVerified: true});
-                                this.cloverConnector.removeCloverConnectorListener(this);
-                            } else {
-                                reactObjectReference.setNormalMessage(reactObjectReference.props.posCloseDev);
-                                this.cloverConnector.dispose();
-                            }
-                        }.bind(this), 6000);
-                    }
-                }.bind(this), 1000);
-
-            },
-            onDisconnected: function() {
-                reactObjectReference.setNormalMessage(reactObjectReference.props.posDevDisconnected);
-                log.debug("onDisconnected");
-                this.cloverConnector.removeCloverConnectorListener(this);
-                reactObjectReference.saveConfiguration();
+        ValidateCommunicationCloverConnectorListener.prototype.onConnected = function () {
+            reactObjectReference.setNormalMessage(reactObjectReference.props.connToDeviceEstablished);
+            log.debug("onConnected");
+        };
+        ValidateCommunicationCloverConnectorListener.prototype.onDeviceError = function (deviceErrorEvent) {
+            if (deviceErrorEvent.getCode() === clover.remotepay.DeviceErrorEventCode.SendNotificationFailure) {
+                reactObjectReference.setErrorMessage(deviceErrorEvent.getMessage());
+            } else if (deviceErrorEvent.getCode() === clover.remotepay.DeviceErrorEventCode.AccessDenied) {
+                reactObjectReference.setErrorMessage(
+                  "Cannot use device at this time.  Device is already connected to " +
+                  deviceErrorEvent.getMessage() + ".");
             }
-        });
+            log.debug("onDeviceError", deviceErrorEvent);
+        };
+        /**
+         * @param {MerchantInfo} merchantInfo
+         * @return void
+         */
+        ValidateCommunicationCloverConnectorListener.prototype.onReady = function (merchantInfo) {
+            reactObjectReference.setNormalMessage(reactObjectReference.props.merchConfigRetrvd);
+            //Give the user a few seconds to see the device connect.
+            log.debug("onReady", merchantInfo);
+            if (reactObjectReference.props.onDeviceVerified) {
+                reactObjectReference.props.onDeviceVerified(this.cloverConnector);
+            }
+            setTimeout(function () {
+                if (reactObjectReference.state.modalIsOpen) {
+                    this.cloverConnector.showMessage(reactObjectReference.props.devConnToFrndlyId + reactObjectReference.props.friendlyId);
+                    reactObjectReference.setNormalMessage(reactObjectReference.props.posConnToFrndlyId_1 +
+                      reactObjectReference.props.friendlyId + reactObjectReference.props.posConnToFrndlyId_2);
+                    setTimeout(function () {
+                        if (reactObjectReference.props.onDeviceVerified) {
+                            if (reactObjectReference.state.modalIsOpen) {
+                                this.cloverConnector.showWelcomeScreen();
+                                reactObjectReference.setNormalMessage(
+                                  reactObjectReference.props.posDevVerifiedCB);
+                            }
+                            reactObjectReference.setState({deviceVerified: true});
+                            this.cloverConnector.removeCloverConnectorListener(this);
+                        } else {
+                            reactObjectReference.setNormalMessage(reactObjectReference.props.posCloseDev);
+                            this.cloverConnector.dispose();
+                        }
+                    }.bind(this), 6000);
+                }
+            }.bind(this), 1000);
+
+        };
+        ValidateCommunicationCloverConnectorListener.prototype.onDisconnected = function () {
+            reactObjectReference.setNormalMessage(reactObjectReference.props.posDevDisconnected);
+            log.debug("onDisconnected");
+            this.cloverConnector.removeCloverConnectorListener(this);
+            reactObjectReference.saveConfiguration();
+        };
         var connectorListener = new ValidateCommunicationCloverConnectorListener(connector);
         connector.addCloverConnectorListener(connectorListener);
 
