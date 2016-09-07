@@ -614,7 +614,7 @@ var ConfigureApp = React.createClass({
                         oauthToken={this.state.oauthToken}
                         merchantId={this.state.merchantId}
                         clientId={this.state.clientId}
-                        remoteApplicationId: {this.state.remoteApplicationId}
+                        remoteApplicationId={this.state.remoteApplicationId}
                       /><br/>
                       <div ref="buttonContainer">
                           <button type="button" onClick={this.verifyCommunication}
