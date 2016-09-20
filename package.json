@@ -46,6 +46,6 @@
     "location": "*",
     "jsdom": "*",
     "navigator": "*",
-    "remote-pay-cloud": "1.1.0-rc5.0"
+    "remote-pay-cloud": "1.1.0-rc6.0"
   }
 }
