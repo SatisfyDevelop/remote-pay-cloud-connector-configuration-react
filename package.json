@@ -1,6 +1,6 @@
 {
   "name": "remote-pay-cloud-connector-configuration-react",
-  "version": "0.0.23-rc1.2",
+  "version": "0.0.23-rc1.3",
   "description": "A React visual component to configure the connection to a Clover device.",
   "keywords": [
     "clover",
